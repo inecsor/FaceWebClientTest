@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs' // This points to the 'libs' directory in your project
+    }
+}
+
+dependencies {
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+    implementation("com.google.code.gson:gson:2.9.0")
+    implementation("io.gsonfire:gson-fire:1.8.5")
+    implementation("org.threeten:threetenbp:1.6.0")
+    implementation("io.swagger:swagger-annotations:1.6.6")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    implementation("com.sun.jersey.contribs:jersey-multipart:1.19.4")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.13.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.3")
+    implementation("com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:2.13.3")
+    implementation("io.swagger:swagger-annotations:1.6.6")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
+    implementation("com.sun.jersey:jersey-client:1.19.4")
+    implementation("org.openapitools:jackson-databind-nullable:0.2.3")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-joda:2.13.3")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3")
+    implementation("com.github.joschi.jackson:jackson-datatype-threetenbp:2.12.5")
+    implementation("com.brsanthu:migbase64:2.2")
+    implementation("jakarta.annotation:jakarta.annotation-api:2.1.0")
+    testImplementation 'com.epam.reportportal:logger-java-log4j:5.1.4'
+    implementation 'org.apache.logging.log4j:log4j-api:2.17.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.17.1'
+    testImplementation 'com.epam.reportportal:agent-java-junit5:5.2.1'
+    implementation name: 'client', ext: 'jar'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testImplementation 'org.slf4j:slf4j-simple:1.7.36'
+    implementation 'com.google.code.gson:gson:2.8.6'
+}
+
+test {
+    testLogging.showStandardStreams = true
+    useJUnitPlatform()
+
+
+    def useReportPortal = System.getenv('USE_REPORTPORTAL') ?: 'false'
+
+    if (useReportPortal == 'true') {
+        println 'Using ReportPortal for testing'
+        systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+        systemProperty 'rp.endpoint', 'http://reportportal.regula.local'
+        systemProperty 'rp.api.key', 'regula_vBWLQ42VQM-6P3Ta0ZXpLDLonBzJok-jw2HhJ5tzgBeKFvgBgk9d8c0WWvZE3zeq'
+        systemProperty 'rp.project', 'web-client-faces'
+        systemProperty 'rp.launch', 'Java-client'
+        systemProperty 'rp.enable', 'true'
+        systemProperty 'rp.attributes', 'JUnit'
+    } else {
+        println 'Running tests without ReportPortal'
+        systemProperty 'rp.enable', 'false'
+    }
+
+    // Set the API base path for tests
+    def apiBasePath = System.getenv('ServiceLink') ?: 'http://localhost:41101/'
+    println "API_BASE_PATH being used: $apiBasePath"
+    systemProperty 'apiBasePath', apiBasePath
+}
+

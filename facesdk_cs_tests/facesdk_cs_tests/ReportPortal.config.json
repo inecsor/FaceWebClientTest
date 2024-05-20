@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/reportportal/agent-net-nunit/master/ReportPortal.NUnitExtension/v3/schema.json",
+  "enabled": false,
+  "server": {
+    "url": "",
+    "project": "",
+    "authentication": {
+      "uuid": ""
+    }
+  },
+  "launch": {
+    "name": "",
+    "description": "",
+    "debugMode": false,
+    "tags": []
+  }
+}

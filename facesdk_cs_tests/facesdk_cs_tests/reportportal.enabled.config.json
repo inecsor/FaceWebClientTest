@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/reportportal/agent-net-nunit/master/ReportPortal.NUnitExtension/v3/schema.json",
+  "enabled": true,
+  "server": {
+    "url": "http://reportportal.regula.local/api/v1",
+    "project": "web-client-faces",
+    "authentication": {
+      "uuid": "regula_vBWLQ42VQM-6P3Ta0ZXpLDLonBzJok-jw2HhJ5tzgBeKFvgBgk9d8c0WWvZE3zeq"
+    }
+  },
+  "launch": {
+    "name": "CSharp-client",
+    "description": "NUnit Tests Launch",
+    "debugMode": false,
+    "tags": [
+      "NUnit",
+      "C#",
+      "YourAdditionalTag"
+    ]
+  }
+}
