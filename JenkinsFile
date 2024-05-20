@@ -1,0 +1,163 @@
+ECHO PythonTests value is %PythonTests%
+ECHO JavaTests value is %JavaTests%
+ECHO CSharpTests value is %CSharpTests%
+ECHO JavaScriptTests value is %JavaScriptTests%
+
+REM Check which tests to run based on the TestType parameter
+IF "%PythonTests%" == "true" (
+    ECHO Running all Python tests...
+
+    REM Creating and activating the 'PythTests' virtual environment
+    ECHO Creating 'PythTests' virtual environment...
+    python -m venv "%WORKSPACE%\PythTests"
+    CALL "%WORKSPACE%\PythTests\Scripts\activate.bat"
+
+    REM Remove existing FaceSDK-web-python-client directory if it exists
+    IF EXIST "%WORKSPACE%\FaceSDK-web-python-client" (
+        RMDIR /S /Q "%WORKSPACE%\FaceSDK-web-python-client"
+    )
+
+    REM Clone and install FaceSDK-web-python-client
+    cd "%WORKSPACE%"
+    git clone https://github.com/regulaforensics/FaceSDK-web-python-client.git
+    cd FaceSDK-web-python-client
+    pip install .
+
+    REM Navigate back to the test directory
+    cd "%WORKSPACE%\facesdk_python_tests"
+
+    REM Install dependencies for tests
+    pip install -r "%WORKSPACE%\facesdk_python_tests\misc\requirements.txt"
+
+    REM Check if UseReportPortal is true and run tests accordingly
+    IF "%UseReportPortal%" == "true" (
+        ECHO Using ReportPortal for pytest...
+        pytest -v --reportportal
+    ) ELSE (
+        ECHO Running pytest without ReportPortal...
+        pytest -v
+    )
+
+    REM Deactivate and remove the 'PythTests' virtual environment
+    CALL "%WORKSPACE%\PythTests\Scripts\deactivate.bat"
+    RMDIR /S /Q "%WORKSPACE%\PythTests"
+    cd ..
+
+)
+
+IF "%CSharpTests%" == "true" (
+    ECHO Running all C# tests...
+
+    REM Navigate to tests folder
+    ECHO Navigating to facesdk_cs_tests folder...
+    cd facesdk_cs_tests
+
+    REM Clone client
+    ECHO Cloning client...
+    git clone https://github.com/regulaforensics/FaceSDK-web-csharp-client.git
+
+    REM CD to client folder
+    ECHO Navigating to FaceSDK-web-js-client folder...
+    cd FaceSDK-web-csharp-client
+
+    REM Build client
+    ECHO Building client...
+    dotnet build build
+
+    REM Navigate to tests
+    ECHO Navigating to tests...
+    cd ..
+    cd facesdk_cs_tests
+
+    REM Build tests
+    ECHO Building tests...
+    dotnet build
+
+    REM Configure ReportPortal
+    ECHO Configuring ReportPortal...
+    IF "%USE_REPORTPORTAL%" == "true" (
+        copy reportportal.enabled.config.json reportportal.config.json
+    ) ELSE (
+        copy reportportal.disabled.config.json reportportal.config.json
+    )
+
+    REM Run tests
+    ECHO Running tests...
+    dotnet test
+    cd ..
+    cd ..
+)
+
+IF "%JavaScriptTests%" == "true" (
+    ECHO Running all JavaScript tests...
+
+    REM Navigate to tests folder
+    ECHO Navigating to facesdk_js_tests folder...
+    cd facesdk_js_tests
+
+    REM Install test dependencies
+    ECHO Installing test dependencies...
+    npm install
+
+    REM Clone client
+    ECHO Cloning client...
+    git clone https://github.com/regulaforensics/FaceSDK-web-js-client.git
+
+    REM CD to client folder
+    ECHO Navigating to FaceSDK-web-js-client folder...
+    cd FaceSDK-web-js-client
+
+    REM Install client dependencies
+    ECHO Installing client dependencies...
+    npm install
+
+    REM Build client
+    ECHO Building client...
+    npm run build
+
+    REM Link built client
+    ECHO Linking built client...
+    npm link
+
+    cd ..
+
+    ECHO Linking @regulaforensics/facesdk-webclient...
+    npm link @regulaforensics/facesdk-webclient
+
+    ECHO Setting NODE_TLS_REJECT_UNAUTHORIZED to 0 and running tests
+    npm test
+    cd ..
+)
+
+IF "%JavaTests%" == "true" (
+    ECHO Running all Java tests...
+
+    REM Navigate to the Jenkins workspace directory
+    cd /d "%WORKSPACE%"
+    ECHO Changed to Workspace: %CD%
+
+    REM Check if FaceSDK-web-java-client directory exists and remove it if it does
+    IF EXIST "facesdk_java_tests\FaceSDK-web-java-client" (
+        RMDIR /S /Q "facesdk_java_tests\FaceSDK-web-java-client"
+    )
+
+    REM Clone FaceSDK-web-java-client
+    git clone https://github.com/regulaforensics/FaceSDK-web-java-client.git "facesdk_java_tests\FaceSDK-web-java-client"
+
+    REM Navigate to FaceSDK-web-java-client
+    cd "facesdk_java_tests\FaceSDK-web-java-client"
+    ECHO Changed to FaceSDK-web-java-client: %CD%
+
+    REM Build it
+    gradlew.bat build
+
+    REM Copy the JAR file to the workspace
+    ECHO Copy operation
+    copy "client\build\libs\client.jar" "%WORKSPACE%\facesdk_java_tests\libs\client.jar"
+
+    cd ..
+
+    REM Build again
+    gradlew.bat build
+    cd ..
+)
